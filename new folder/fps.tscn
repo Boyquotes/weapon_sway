@@ -1,0 +1,85 @@
+[gd_scene load_steps=13 format=3 uid="uid://4s4d14kxgb86"]
+
+[ext_resource type="Script" path="res://new folder/fpds.gd" id="1_cmdc6"]
+[ext_resource type="PackedScene" uid="uid://c605qgcpgptvy" path="res://new folder2/crosshair.tscn" id="2_ymd1l"]
+[ext_resource type="Script" path="res://new folder/hand.gd" id="3_30gvv"]
+[ext_resource type="PackedScene" uid="uid://5keiau78pao2" path="res://weapon.tscn" id="3_754b5"]
+[ext_resource type="Script" path="res://weapon.gd" id="4_w1x4y"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_6qgcx"]
+
+[sub_resource type="Gradient" id="Gradient_ul7hs"]
+offsets = PackedFloat32Array(0.387978, 0.699454)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_gwhx8"]
+frequency = 0.032
+offset = Vector3(0.00999999, 0, 0)
+fractal_gain = 0.6
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_b7e5t"]
+in_3d_space = true
+seamless = true
+color_ramp = SubResource("Gradient_ul7hs")
+noise = SubResource("FastNoiseLite_gwhx8")
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_iw7xu"]
+sky_cover = SubResource("NoiseTexture2D_b7e5t")
+sun_angle_max = 33.03
+sun_curve = 1.00907
+
+[sub_resource type="Sky" id="Sky_b0e4i"]
+sky_material = SubResource("ProceduralSkyMaterial_iw7xu")
+process_mode = 1
+radiance_size = 6
+
+[sub_resource type="Environment" id="Environment_tq8f0"]
+background_mode = 2
+sky = SubResource("Sky_b0e4i")
+tonemap_mode = 2
+sdfgi_enabled = true
+glow_enabled = true
+
+[node name="CharacterBody3D" type="CharacterBody3D"]
+script = ExtResource("1_cmdc6")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_6qgcx")
+
+[node name="Head" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Head"]
+environment = SubResource("Environment_tq8f0")
+
+[node name="gunray" type="RayCast3D" parent="Head/Camera3D"]
+target_position = Vector3(0, 0, -1000)
+
+[node name="Control" parent="Head" instance=ExtResource("2_ymd1l")]
+
+[node name="hand" type="Node3D" parent="Head"]
+transform = Transform3D(0.999925, 0, 0.012217, 0, 1, 0, -0.012217, 0, 0.999925, 0, 0, 0)
+script = ExtResource("3_30gvv")
+sway_left = Vector3(0, 0.2, 0)
+sway_right = Vector3(0, -0.2, 0)
+sway_left_y = Vector3(0.2, 0, 0)
+sway_right_y = Vector3(-0.2, 0, 0)
+
+[node name="weapon" type="Node3D" parent="Head/hand"]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0.296, -0.272, -0.842)
+
+[node name="Node3D" parent="Head/hand/weapon" instance=ExtResource("3_754b5")]
+script = ExtResource("4_w1x4y")
+damage = 14
+ammo = 30
+max_ammo = 30
+spare_ammo = 150
+ammo_per_shot = 1
+inf_spare_ammo = true
+full_auto = true
+reload_time = 1.0
+firerate = 0.1
+rayCast = NodePath("../../../Camera3D/gunray")
+
+[node name="RayCast3D" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.389, 0)
+target_position = Vector3(0, 1, 0)
